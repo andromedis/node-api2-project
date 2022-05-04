@@ -11,7 +11,7 @@ export const router = express.Router()
 
 // GET    | /api/posts              | Returns **an array of all the post objects** contained in the database
 router.get('/', async (req: Request, res: Response) => {
-    // Posts.find()
+    // PostModel.find()
     //     .then(posts => {
     //         res.status(200).json(posts)
     //     })
@@ -32,7 +32,9 @@ router.get('/', async (req: Request, res: Response) => {
 
 // GET    | /api/posts/:id          | Returns **the post object with the specified id**
 router.get('/:id', async (req: Request, res: Response) => {
-    // Posts.findById(req.params.id)
+    const id: number = parseInt(req.params.id, 10)
+
+    // PostModel.findById(id)
     //     .then(post => {
     //         const [ status, json ] = post 
     //             ? [200, post] 
@@ -45,7 +47,6 @@ router.get('/:id', async (req: Request, res: Response) => {
     //     })
 
     try {
-        const id: number = parseInt(req.params.id, 10)
         const post: Post = await PostModel.findById(id)
         const [ status, json ] = post 
                 ? [200, post] 
@@ -64,9 +65,10 @@ router.post('/', async (req: Request, res: Response) => {
     //     res.status(400).json({ message: 'Please provide title and contents for the post' })
     // }
     // else {
-    //     Posts.insert(req.body)
+    //     const post: BasePost = req.body
+    //     PostModel.insert(post)
     //         .then(({ id }) => {
-    //             return Posts.findById(id)
+    //             return PostModel.findById(id)
     //         })
     //         .then(post => {
     //             res.status(201).json(post)
@@ -96,14 +98,17 @@ router.post('/', async (req: Request, res: Response) => {
 
 // PUT    | /api/posts/:id          | Updates the post with the specified id using data from the request body and **returns the modified document**, not the original
 router.put('/:id', async (req: Request, res: Response) => {
+    const id: number = parseInt(req.params.id, 10)
+
     // if (!req.body.title || !req.body.contents) {
     //     res.status(400).json({ message: 'Please provide title and contents for the post' })
     // }
     // else {
-    //     Posts.update(req.params.id, req.body)
+    //     const postUpdate: BasePost = req.body
+    //     PostModel.update(id, postUpdate)
     //         .then(success => {
     //             if (success)
-    //                 return Posts.findById(req.params.id)
+    //                 return PostModel.findById(id)
     //             else
     //                 res.status(404).json({ message: 'The post with the specified ID does not exist' })
     //         })
@@ -122,7 +127,6 @@ router.put('/:id', async (req: Request, res: Response) => {
     else {
         try {
             const postUpdate: BasePost = req.body
-            const id: number = parseInt(req.params.id, 10)
 
             let post = await PostModel.findById(id)
             if (post) {
