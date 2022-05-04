@@ -1,3 +1,5 @@
+// still janky for typescript
+
 const sharedConfig = {
   client: 'sqlite3',
   useNullAsDefault: true,
@@ -8,13 +10,17 @@ const sharedConfig = {
     directory: './data/seeds',
   },
   pool: {
-    afterCreate: (conn, done) => {
+    afterCreate: (conn: any, done: Function) => {
       conn.run('PRAGMA foreign_keys = ON', done)
     },
   },
 }
 
-module.exports = {
+interface Config {
+  [key: string]: any
+}
+
+export const configs: Config = {
   development: {
     ...sharedConfig,
     connection: { filename: './data/lambda.db3' },
