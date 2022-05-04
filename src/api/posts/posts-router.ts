@@ -1,15 +1,16 @@
 // Imports
-const express = require('express')
-const Posts = require('./posts-model')
+import express, { Request, Response } from "express"
+import * as PostModel from "./posts-model"
+import { BasePost, Post } from "./post.interface"
 
 // Express Router instance
-const router = express.Router()
+export const router = express.Router()
 
 
 // Posts endpoints
 
 // GET    | /api/posts              | Returns **an array of all the post objects** contained in the database
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
     // Posts.find()
     //     .then(posts => {
     //         res.status(200).json(posts)
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
     //     })
     
     try {
-        const posts = await Posts.find()
+        const posts: Post[] = await PostModel.find()
         res.status(200).json(posts)
     }
     catch (err) {
@@ -30,7 +31,7 @@ router.get('/', async (req, res) => {
 })
 
 // GET    | /api/posts/:id          | Returns **the post object with the specified id**
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
     // Posts.findById(req.params.id)
     //     .then(post => {
     //         const [ status, json ] = post 
@@ -44,7 +45,8 @@ router.get('/:id', async (req, res) => {
     //     })
 
     try {
-        const post = await Posts.findById(req.params.id)
+        const id: number = parseInt(req.params.id, 10)
+        const post: Post = await PostModel.findById(id)
         const [ status, json ] = post 
                 ? [200, post] 
                 : [404, { message: 'The post with the specified ID does not exist' }]
@@ -57,7 +59,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // POST   | /api/posts              | Creates a post using the information sent inside the request body and returns **the newly created post object**
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request, res: Response) => {
     // if (!req.body.title || !req.body.contents) {
     //     res.status(400).json({ message: 'Please provide title and contents for the post' })
     // }
@@ -77,12 +79,13 @@ router.post('/', async (req, res) => {
 
     if (!req.body.title || !req.body.contents) {
         res.status(400).json({ message: 'Please provide title and contents for the post' })
-    } 
+    }
     else {
         try {
-            const { id } = await Posts.insert(req.body)
-            const post = await Posts.findById(id)
-            res.status(201).json(post)
+            const post: BasePost = req.body
+            const { id } = await PostModel.insert(post)
+            const newPost = await PostModel.findById(id)
+            res.status(201).json(newPost)
         }
         catch (err) {
             console.error(err)
@@ -92,7 +95,7 @@ router.post('/', async (req, res) => {
 })
 
 // PUT    | /api/posts/:id          | Updates the post with the specified id using data from the request body and **returns the modified document**, not the original
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req: Request, res: Response) => {
     // if (!req.body.title || !req.body.contents) {
     //     res.status(400).json({ message: 'Please provide title and contents for the post' })
     // }
@@ -118,10 +121,12 @@ router.put('/:id', async (req, res) => {
     }
     else {
         try {
-            let post = await Posts.findById(req.params.id)
+            const postUpdate: BasePost = req.body
+            const id: number = parseInt(req.params.id, 10)
+
+            let post = await PostModel.findById(id)
             if (post) {
-                await Posts.update(req.params.id, req.body)
-                post = await Posts.findById(req.params.id)
+                post = await PostModel.update(id, postUpdate)
                 res.status(200).json(post)
             }
             else {
@@ -136,11 +141,12 @@ router.put('/:id', async (req, res) => {
 })
 
 // DELETE | /api/posts/:id          | Removes the post with the specified id and returns the **deleted post object**
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res: Response) => {
     try {
-        const post = await Posts.findById(req.params.id)
+        const id: number = parseInt(req.params.id, 10)
+        const post = await PostModel.findById(id)
         if (post) {
-            await Posts.remove(post.id)
+            await PostModel.remove(post.id)
             res.status(200).json(post)
         }
         else {
@@ -154,11 +160,12 @@ router.delete('/:id', async (req, res) => {
 })
 
 // GET    | /api/posts/:id/comments | Returns an **array of all the comment objects** associated with the post with the specified id
-router.get('/:id/comments', async (req, res) => {
+router.get('/:id/comments', async (req: Request, res: Response) => {
     try {
-        const post = await Posts.findById(req.params.id)
+        const id: number = parseInt(req.params.id, 10)
+        const post = await PostModel.findById(id)
         if (post) {
-            const comments = await Posts.findPostComments(req.params.id)
+            const comments = await PostModel.findPostComments(id)
             res.status(200).json(comments)
         }
         else {
@@ -170,7 +177,3 @@ router.get('/:id/comments', async (req, res) => {
         res.status(500).json({ message: 'The comments information could not be retrieved' })
     }
 })
-
-
-// Exports
-module.exports = router
