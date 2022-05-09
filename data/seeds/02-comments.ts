@@ -1,5 +1,6 @@
+import { Knex } from "knex";
 
-exports.seed = function(knex, Promise) {
+exports.seed = function(knex: Knex): Promise<number[]> {
   return knex('comments').truncate()
     .then(function () {
       return knex('comments').insert([

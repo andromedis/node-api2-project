@@ -1,4 +1,4 @@
-// still janky for typescript
+import { Knex } from 'knex';
 
 const sharedConfig = {
   client: 'sqlite3',
@@ -10,17 +10,13 @@ const sharedConfig = {
     directory: './data/seeds',
   },
   pool: {
-    afterCreate: (conn: any, done: Function) => {
+    afterCreate: (conn: any, done: any) => {
       conn.run('PRAGMA foreign_keys = ON', done)
     },
   },
 }
 
-interface Config {
-  [key: string]: any
-}
-
-export const configs: Config = {
+const configs: { [key: string]: Knex.Config } = {
   development: {
     ...sharedConfig,
     connection: { filename: './data/lambda.db3' },
@@ -30,3 +26,5 @@ export const configs: Config = {
     connection: { filename: './data/testing.db3' },
   },
 }
+
+module.exports = configs;

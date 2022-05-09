@@ -1,4 +1,4 @@
-import { db } from '../../../data/db-config';
+const db = require('../../../data/db-config');
 import { BasePost, Post } from "./post.interface";
 import { BaseComment, Comment } from './comment.interface';
 

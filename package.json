@@ -9,14 +9,14 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "knex": "^0.95.4",
-    "sqlite3": "^5.0.2"
+    "knex": "^2.0.0",
+    "sqlite3": "^5.0.2",
+    "ts-node": "^10.8.0"
   },
   "devDependencies": {
     "@types/eslint": "^8.4.2",
     "@types/express": "^4.17.13",
     "@types/jest": "^27.5.0",
-    "@types/knex": "^0.16.1",
     "@types/node": "^17.0.31",
     "@types/sqlite3": "^3.1.8",
     "@types/supertest": "^2.0.12",

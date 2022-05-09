@@ -1,4 +1,6 @@
-exports.up = function(knex) {
+import { Knex } from 'knex';
+
+exports.up = function(knex: Knex) {
   return knex.schema.createTable('comments', tbl => {
     tbl.increments();
 
@@ -17,6 +19,6 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
+exports.down = function(knex: Knex) {
   return knex.schema.dropTableIfExists('comments');
 };
