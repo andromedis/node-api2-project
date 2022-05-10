@@ -2,7 +2,7 @@
 import express, { Request, Response } from "express";
 import * as PostModel from "./posts-model";
 import { BasePost, Post } from "./post.interface";
-import { Comment } from "./comment.interface";
+import { BaseComment, Comment } from "./comment.interface";
 
 // Express Router instance
 export const router = express.Router()
@@ -181,5 +181,50 @@ router.get('/:id/comments', async (req: Request, res: Response) => {
     catch (err: unknown) {
         console.error(err)
         res.status(500).json({ message: 'The comments information could not be retrieved' })
+    }
+})
+
+// GET    | /api/posts/comments/:id | Returns first comment object with the specified id
+router.get('/comments/:id', async (req: Request, res: Response) => {
+    try {
+        const id: number = parseInt(req.params.id, 10)
+        const comment: Comment | undefined = await PostModel.findCommentById(id)
+        if (comment) {
+            res.status(200).json(comment)
+        } else {
+            res.status(404).json("The comment with the specified id does not exist")
+        }
+
+    } catch (err: unknown) {
+        console.error(err)
+        res.status(500).json({ message: 'The comment\'s information could not be retrieved' })
+    }
+})
+
+
+// POST   | /api/posts/:id/comments | Creates new comment from request body with post_id :id and returns newly created comment
+router.post('/:id/comments', async (req: Request, res: Response) => {
+    if (!req.body.text) {
+        res.status(400).json({ message: 'Please provide the text of the comment' })
+    }
+    else {
+        try {
+            const post_id: number = parseInt(req.params.id, 10)
+            const comment: BaseComment = { ...req.body, post_id }
+            console.log(comment)
+            const post: Post | undefined = await PostModel.findById(post_id)
+
+            if (post) {
+                const { id }: {id: number} = await PostModel.insertComment(comment)
+                const newComment: Comment | undefined = await PostModel.findCommentById(id)
+                res.status(201).json(newComment)
+            } else {
+                res.status(404).json({ message: "The post with the specified ID does not exist" })
+            }
+        }
+        catch (err: unknown) {
+            console.error(err)
+            res.status(500).json({ message: 'There was an error while saving the post to the database' })
+        }
     }
 })
