@@ -6,25 +6,25 @@ export function find(): Promise<Post[]> {
   return db('posts');
 }
 
-export function findById(id: number): Promise<Post> {
+export function findById(id: number): Promise<Post | undefined> {
   return db('posts').where({ id: Number(id) }).first()
 }
 
-export async function insert(post: BasePost): Promise<Post> {
-  // return db('posts')
-  //   .insert(post, 'id')
-  //   .then((ids: number[]) => ({ id: ids[0] }));
-  const id: number = await db('posts').insert(post, 'id')
-  return findById(id)
+// Returns promise containing object containing id of inserted post
+export function insert(post: BasePost): Promise<{ id: number }> {
+  return db('posts')
+    .insert(post, 'id')
+    .then((ids: number[]) => ({ id: ids[0] }));
 }
 
-export function update(id: number, post: BasePost): Promise<Post> {
+// Returns promise containing number of updated records
+export function update(id: number, post: BasePost): Promise<number | undefined> {
   return db('posts')
     .where('id', Number(id))
     .update(post);
 }
 
-export function remove(id: number): Promise<Post> {
+export function remove(id: number): Promise<Post | undefined> {
   return db('posts')
     .where('id', Number(id))
     .del();
@@ -37,17 +37,16 @@ export function findPostComments(postId: number): Promise<Comment[]> {
     .where('post_id', postId);
 }
 
-export function findCommentById(id: number): Promise<Comment> {
+export function findCommentById(id: number): Promise<Comment | undefined> {
   return db('comments')
     .join('posts', 'posts.id', 'post_id')
     .select('comments.*', 'title as post')
     .where('comments.id', id).first();
 }
 
-export async function insertComment(comment: BaseComment): Promise<Comment> {
-  // return db('comments')
-  //   .insert(comment)
-  //   .then((ids: number[]) => ({ id: ids[0] }));
-  const id: number = await db('comments').insert(comment)
-  return findCommentById(id)
+// Returns promise containing object containing id of inserted post
+export function insertComment(comment: BaseComment): Promise<Comment> {
+  return db('comments')
+    .insert(comment)
+    .then((ids: number[]) => ({ id: ids[0] }));
 }

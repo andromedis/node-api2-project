@@ -1,7 +1,8 @@
 // Imports
-import express, { Request, Response } from "express"
-import * as PostModel from "./posts-model"
-import { BasePost, Post } from "./post.interface"
+import express, { Request, Response } from "express";
+import * as PostModel from "./posts-model";
+import { BasePost, Post } from "./post.interface";
+import { Comment } from "./comment.interface";
 
 // Express Router instance
 export const router = express.Router()
@@ -12,10 +13,10 @@ export const router = express.Router()
 // GET    | /api/posts              | Returns **an array of all the post objects** contained in the database
 router.get('/', async (req: Request, res: Response) => {
     // PostModel.find()
-    //     .then(posts => {
+    //     .then((posts: Post[]) => {
     //         res.status(200).json(posts)
     //     })
-    //     .catch(err => {
+    //     .catch((err: unknown) => {
     //         console.error(err)
     //         res.status(500).json({ message: 'The posts information could not be retrieved' })
     //     })
@@ -24,7 +25,7 @@ router.get('/', async (req: Request, res: Response) => {
         const posts: Post[] = await PostModel.find()
         res.status(200).json(posts)
     }
-    catch (err) {
+    catch (err: unknown) {
         console.error(err)
         res.status(500).json({ message: 'The posts information could not be retrieved' })
     }
@@ -35,25 +36,25 @@ router.get('/:id', async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id, 10)
 
     // PostModel.findById(id)
-    //     .then(post => {
+    //     .then((post: Post | undefined) => {
     //         const [ status, json ] = post 
     //             ? [200, post] 
     //             : [404, { message: 'The post with the specified ID does not exist' }]
     //         res.status(status).json(json)
     //     })
-    //     .catch(err => {
+    //     .catch((err: unknown) => {
     //         console.error(err)
     //         res.status(500).json({ message: 'The post information could not be retrieved' })
     //     })
 
     try {
-        const post: Post = await PostModel.findById(id)
+        const post: Post | undefined = await PostModel.findById(id)
         const [ status, json ] = post 
                 ? [200, post] 
                 : [404, { message: 'The post with the specified ID does not exist' }]
         res.status(status).json(json)
     }
-    catch (err) {
+    catch (err: unknown) {
         console.error(err)
         res.status(500).json({ message: 'The post information could not be retrieved' })
     }
@@ -67,13 +68,13 @@ router.post('/', async (req: Request, res: Response) => {
     // else {
     //     const post: BasePost = req.body
     //     PostModel.insert(post)
-    //         .then(({ id }) => {
+    //         .then(( { id }: {id: number} ) => {
     //             return PostModel.findById(id)
     //         })
-    //         .then(post => {
+    //         .then((post: Post | undefined) => {
     //             res.status(201).json(post)
     //         })
-    //         .catch(err => {
+    //         .catch((err: unknown) => {
     //             console.error(err)
     //             res.status(500).json({ message: 'There was an error while saving the post to the database' })
     //         })
@@ -85,11 +86,11 @@ router.post('/', async (req: Request, res: Response) => {
     else {
         try {
             const post: BasePost = req.body
-            const { id } = await PostModel.insert(post)
-            const newPost = await PostModel.findById(id)
+            const { id }: {id: number} = await PostModel.insert(post)
+            const newPost: Post | undefined = await PostModel.findById(id)
             res.status(201).json(newPost)
         }
-        catch (err) {
+        catch (err: unknown) {
             console.error(err)
             res.status(500).json({ message: 'There was an error while saving the post to the database' })
         }
@@ -106,16 +107,16 @@ router.put('/:id', async (req: Request, res: Response) => {
     // else {
     //     const postUpdate: BasePost = req.body
     //     PostModel.update(id, postUpdate)
-    //         .then(success => {
-    //             if (success)
+    //         .then((recordsUpdated: number | undefined) => {
+    //             if (recordsUpdated)
     //                 return PostModel.findById(id)
     //             else
     //                 res.status(404).json({ message: 'The post with the specified ID does not exist' })
     //         })
-    //         .then(post => {
+    //         .then((post: Post | undefined) => {
     //             res.status(200).json(post)
     //         })
-    //         .catch(err => {
+    //         .catch((err: unknown) => {
     //             console.log(err)
     //             res.status(500).json({ message: 'The post information could not be modified' })
     //         })
@@ -128,16 +129,17 @@ router.put('/:id', async (req: Request, res: Response) => {
         try {
             const postUpdate: BasePost = req.body
 
-            let post = await PostModel.findById(id)
+            let post: Post | undefined = await PostModel.findById(id)
             if (post) {
-                post = await PostModel.update(id, postUpdate)
+                await PostModel.update(id, postUpdate)
+                post = await PostModel.findById(id)
                 res.status(200).json(post)
             }
             else {
                 res.status(404).json({ message: 'The post with the specified ID does not exist' })
             }
         }
-        catch (err) {
+        catch (err: unknown) {
             console.log(err)
             res.status(500).json({ message: 'The post information could not be modified' })
         }
@@ -148,7 +150,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
     try {
         const id: number = parseInt(req.params.id, 10)
-        const post = await PostModel.findById(id)
+        const post: Post | undefined = await PostModel.findById(id)
         if (post) {
             await PostModel.remove(post.id)
             res.status(200).json(post)
@@ -157,7 +159,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
             res.status(404).json({ message: 'The post with the specified ID does not exist' })
         }
     }
-    catch (err) {
+    catch (err: unknown) {
         console.log(err)
         res.status(500).json({ message: 'The post could not be removed' })
     }
@@ -167,16 +169,16 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/:id/comments', async (req: Request, res: Response) => {
     try {
         const id: number = parseInt(req.params.id, 10)
-        const post = await PostModel.findById(id)
+        const post: Post | undefined = await PostModel.findById(id)
         if (post) {
-            const comments = await PostModel.findPostComments(id)
+            const comments: Comment[] = await PostModel.findPostComments(id)
             res.status(200).json(comments)
         }
         else {
             res.status(404).json({ message: 'The post with the specified ID does not exist' })
         }
     }
-    catch (err) {
+    catch (err: unknown) {
         console.error(err)
         res.status(500).json({ message: 'The comments information could not be retrieved' })
     }
