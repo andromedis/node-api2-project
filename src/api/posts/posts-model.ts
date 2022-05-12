@@ -18,13 +18,14 @@ export function insert(post: BasePost): Promise<{ id: number }> {
 }
 
 // Returns promise containing number of updated records
-export function update(id: number, post: BasePost): Promise<number | undefined> {
+export function update(id: number, post: BasePost): Promise<number> {
   return db('posts')
     .where('id', Number(id))
     .update(post);
 }
 
-export function remove(id: number): Promise<Post | undefined> {
+// Returns promise containing number of deleted records
+export function remove(id: number): Promise<number> {
   return db('posts')
     .where('id', Number(id))
     .del();
@@ -45,7 +46,7 @@ export function findCommentById(id: number): Promise<Comment | undefined> {
 }
 
 // Returns promise containing object containing id of inserted post
-export function insertComment(comment: BaseComment): Promise<Comment> {
+export function insertComment(comment: BaseComment): Promise<{ id: number }> {
   return db('comments')
     .insert(comment)
     .then((ids: number[]) => ({ id: ids[0] }));

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "server": "nodemon build/index.js",
+    "build": "tsc",
     "test": "cross-env NODE_ENV=testing jest --watch --verbose --runInBand --silent",
     "resetdb": "knex migrate:rollback && knex migrate:latest && knex seed:run",
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",

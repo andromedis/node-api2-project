@@ -1,8 +1,8 @@
 import request, { Response } from 'supertest';
-import { BasePost, Post } from './src/api/posts/post.interface';
-import { BaseComment } from './src/api/posts/comment.interface';
-import { server } from './src/api/server';
-const db = require('./data/db-config');
+import { BasePost, Post } from './api/posts/post.interface';
+import { BaseComment } from './api/posts/comment.interface';
+import { server } from './api/server';
+const db = require('../data/db-config');
 
 beforeAll(async () => {
   await db.migrate.rollback()

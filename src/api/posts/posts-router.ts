@@ -211,7 +211,6 @@ router.post('/:id/comments', async (req: Request, res: Response) => {
         try {
             const post_id: number = parseInt(req.params.id, 10)
             const comment: BaseComment = { ...req.body, post_id }
-            console.log(comment)
             const post: Post | undefined = await PostModel.findById(post_id)
 
             if (post) {
